@@ -60,16 +60,17 @@
         <div class="valid-feedback">location looks good!</div>
         <div class="invalid-feedback">please enter valid location</div>
     </div>
-
-    <div class="form-group" class="mb-3">
+    <div class="form-group mb-3">
         <label for="category">Choose a Category:</label>
-        <select name="listing[category]" id="category" required>
-            <% let categories = ["trending", "rooms", "iconic-cities", "mountain", "castles", "pools", "camping", "farms", "arctic"]; %>
+        <select name="listing[category]" id="category" class="form-control" required>
+            <% let categories = ["new-listings", "apartments", "villas", "luxury", "beachfront", "garden-homes", "penthouses", "family-friendly", "commercial", "plots"]; %>
             <% categories.forEach(category => { %>
                 <option value="<%= category %>"><%= category.replace('-', ' ') %></option>
             <% }); %>
         </select>
     </div>
+    
+    
     
         <button class="add-btn">Save</button>
         <br>

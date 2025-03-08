@@ -1,0 +1,22 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <h2 class="text-center">Live Land Auctions</h2>
+
+    <div class="row">
+        <% auctions.forEach(auction => { %>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="<%= auction.image.url %>" class="card-img-top" alt="Auction Land">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= auction.title %></h5>
+                        <p><strong>Location:</strong> <%= auction.location %></p>
+                        <p><strong>Current Bid:</strong> $<%= auction.price %></p>
+                        <a href="/listings/<%= auction._id %>" class="btn btn-primary">Place a Bid</a>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>
+

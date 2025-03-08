@@ -86,48 +86,46 @@
 </style>
 
 <div id="filters">
-  <a href="/listings/filter/trending" class="filter">
-    <div><i class="fa-solid fa-fire"></i></div> 
-    <p>Trending</p>
+  <a href="/listings/filter/new-listings" class="filter">
+    <div><i class="fa-solid fa-bell"></i></div> 
+    <p>New Listings</p>
   </a>
-  <a href="/listings/filter/rooms" class="filter">
-    <div><i class="fa-solid fa-bed"></i></div> 
-    <p>Rooms</p>
+  <a href="/listings/filter/apartments" class="filter">
+    <div><i class="fa-solid fa-building"></i></div> 
+    <p>Apartments</p>
   </a>
-  <a href="/listings/filter/iconic-cities" class="filter">
-    <div><i class="fa-solid fa-mountain-city"></i></div> 
-    <p>Iconic cities</p>
+  <a href="/listings/filter/villas" class="filter">
+    <div><i class="fa-solid fa-house-chimney"></i></div> 
+    <p>Villas</p>
   </a>
-  <a href="/listings/filter/mountain" class="filter">
-    <div><i class="fa-solid fa-mountain"></i></div> 
-    <p>Mountain</p>
+  <a href="/listings/filter/luxury" class="filter">
+    <div><i class="fa-solid fa-gem"></i></div> 
+    <p>Luxury</p>
   </a>
-  <a href="/listings/filter/castles" class="filter">
-    <div><i class="fa-brands fa-fort-awesome"></i></div> 
-    <p>Castles</p>
+  <a href="/listings/filter/beachfront" class="filter">
+    <div><i class="fa-solid fa-umbrella-beach"></i></div> 
+    <p>Beachfront</p>
   </a>
-  <a href="/listings/filter/pools" class="filter">
-    <div><i class="fa-solid fa-person-swimming"></i></div> 
-    <p>Pools</p>
+  <a href="/listings/filter/garden" class="filter">
+    <div><i class="fa-solid fa-seedling"></i></div> 
+    <p>Garden Homes</p>
   </a>
-  <a href="/listings/filter/camping" class="filter">
-    <div><i class="fa-solid fa-campground"></i></div> 
-    <p>Camping</p>
+  <a href="/listings/filter/penthouses" class="filter">
+    <div><i class="fa-solid fa-city"></i></div> 
+    <p>Penthouses</p>
   </a>
-  <a href="/listings/filter/farms" class="filter">
-    <div><i class="fa-solid fa-cow"></i></div> 
-    <p>Farms</p>
+  <a href="/listings/filter/family-friendly" class="filter">
+    <div><i class="fa-solid fa-child"></i></div> 
+    <p>Family-Friendly</p>
   </a>
-  <a href="/listings/filter/arctic" class="filter">
-    <div><i class="fa-solid fa-snowflake"></i></div> 
-    <p>Arctic</p>
+  <a href="/listings/filter/commercial" class="filter">
+    <div><i class="fa-solid fa-briefcase"></i></div> 
+    <p>Commercial</p>
   </a>
-  <div class="tax-toggle">
-    <div class="form-check-reverse form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-      <label class="form-check-label" for="flexSwitchCheckDefault">Display taxes</label>
-    </div>
-  </div>
+  <a href="/listings/filter/plots" class="filter">
+    <div><i class="fa-solid fa-map"></i></div> 
+    <p>Land/Plots</p>
+  </a>
 </div>
 
 <div class="row">
@@ -139,11 +137,12 @@
           <p class="card-text">
             <b><%= listing.title %></b><br>
             ₹ <% if (listing.price !== undefined && listing.price !== null) { %>
-              <%= listing.price.toLocaleString("en-IN") %> /night
-              <i class="tax-info">&nbsp;&nbsp;+18% GST</i>
+              <%= listing.price.toLocaleString("en-IN") %>
             <% } else { %>
               Price not available
-            <% } %>         
+            <% } %>        
+            <b><%= listing.location %></b><br>
+
           </p>
         </div>
       </div>
