@@ -65,24 +65,28 @@
     padding: 1rem;
   }
 
-  @media (max-width: 768px) {
-    .col-md-6 {
-      flex: 0 0 48%;
-      max-width: 48%;
-    }
+  @media (min-width: 992px) {
+  .col-md-6 {
+    flex: 0 0 32%;
+    max-width: 32%;
   }
+}
 
-  @media (max-width: 480px) {
-    .col-md-6 {
-      flex: 0 0 100%;
-      max-width: 100%;
-    }
-    .tax-toggle {
-      margin-left: 0;
-      width: 100%;
-      justify-content: center;
-    }
+@media (max-width: 991px) and (min-width: 768px) {
+  .col-md-6 {
+    flex: 0 0 48%;
+    max-width: 48%;
   }
+}
+
+@media (max-width: 767px) {
+  .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+  
 </style>
 
 <div id="filters">
