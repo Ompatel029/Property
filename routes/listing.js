@@ -17,14 +17,23 @@ router.get("/filter/:category", wrapAsync(listingController.filterListings));
 
 // 🟢 Live Auctions Page (Ensuring 'auction' is treated as a category, not an ID)
 router.get("/auction", async (req, res) => {
-    const auctions = await Listing.find({ category: "auction" });  
-    res.render("listings/auction", { auctions });
+    res.redirect("/auction/live"); // Redirect to the new live auction page
 });
 
 // 🟢 Main Listing Routes
 router.route("/")
     .get(listings.index)
     .post(isLoggedIn, upload.single("listing[image]"), wrapAsync(listingController.createListing));
+
+
+    // Live Auctions Page
+router.get("/auction/live", wrapAsync(listings.renderLiveAuctions));
+
+// API endpoint for auction data
+router.get("/api/auctions", wrapAsync(listings.getAuctionData));
+
+// Place bid route
+router.post("/auction/:id/bid", isLoggedIn, wrapAsync(listings.placeBid));
 
 // 🟢 Show, Edit, Update, and Delete Individual Listing (Must be LAST to avoid conflicts)
 router.route("/:id")

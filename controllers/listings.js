@@ -53,19 +53,29 @@ module.exports.createListing = async (req, res) => {
   newListing.image = { url, filename };
   newListing.geometry = response.body.features[0].geometry;
 
-  // 🟢 Auction fields handle karo
+  // ✨ IMPROVED AUCTION HANDLING
   if (req.body.listing.isAuction === "true") {
     newListing.isAuction = true;
-    newListing.auctionStartTime = req.body.listing.startTime || null;
-    newListing.auctionEndTime = req.body.listing.endTime || null;
+    newListing.auctionStartTime = new Date(req.body.listing.auctionStartTime);
+    newListing.auctionEndTime = new Date(req.body.listing.auctionEndTime);
+    newListing.currentBid = newListing.price; // Starting bid = listing price
+    newListing.totalBids = 0;
+    newListing.bidHistory = [];
   }
 
   let saveListing = await newListing.save();
   console.log("Created Listing:", saveListing);
 
   req.flash("success", "New Listing Created!");
-  res.redirect("/listings");
+  
+  // ✨ REDIRECT TO AUCTION PAGE IF IT'S AN AUCTION
+  if (newListing.isAuction) {
+    res.redirect("/listings/auction/live");
+  } else {
+    res.redirect("/listings");
+  }
 };
+
 
 /* -------------------- EDIT FORM ------------------------ */
 module.exports.renderEditForm = async (req, res) => {
@@ -149,24 +159,139 @@ module.exports.getLiveAuctions = async (req, res) => {
 
 /* ------------------ PLACE A BID ------------------------ */
 module.exports.placeBid = async (req, res) => {
-  const { id } = req.params;
-  const { bidAmount } = req.body;
-  const listing = await Listing.findById(id);
+  try {
+    const { id } = req.params;
+    const { bidAmount } = req.body;
 
-  if (!listing.isAuction) {
-    req.flash("error", "This listing is not an auction.");
-    return res.redirect("/live-auctions");
+     console.log("🔥 Bid received:", { id, bidAmount }); 
+
+    const listing = await Listing.findById(id);
+    console.log("🏠 Current listing:", { 
+      currentBid: listing.currentBid, 
+      price: listing.price,
+      totalBids: listing.totalBids 
+    });
+
+    if (!listing || !listing.isAuction) {
+      return res.status(404).json({ error: "Auction not found" });
+    }
+
+    // Check if auction is still active
+    if (new Date() > listing.auctionEndTime) {
+      return res.status(400).json({ error: "Auction has ended" });
+    }
+
+    // Validate bid amount
+    const currentBid = listing.currentBid || listing.price;
+    console.log("💰 Comparing bids:", { bidAmount, currentBid }); 
+    if (bidAmount <= currentBid) {
+      return res.status(400).json({ error: "Bid must be higher than current bid" });
+    }
+
+    // Update listing with new bid
+    listing.currentBid = bidAmount;
+    listing.totalBids = (listing.totalBids || 0) + 1;
+    listing.highestBidder = req.user._id;
+    
+    // Add to bid history
+    listing.bidHistory.push({
+      bidder: req.user._id,
+      amount: bidAmount,
+      timestamp: new Date()
+    });
+
+    await listing.save();
+    console.log("✅ Saved listing:", { 
+      newCurrentBid: savedListing.currentBid, 
+      newTotalBids: savedListing.totalBids 
+    });
+
+    res.json({ 
+      success: true, 
+      currentBid: bidAmount,
+      totalBids: listing.totalBids 
+    });
+
+  } catch (error) {
+    console.error("Error placing bid:", error);
+    res.status(500).json({ error: "Could not place bid" });
   }
+};
 
-  if (bidAmount <= listing.highestBid) {
-    req.flash("error", "Bid must be higher than current highest bid!");
-    return res.redirect("/live-auctions");
+module.exports.renderLiveAuctions = async (req, res) => {
+  try {
+    const currentTime = new Date();
+    
+    // Get all auction listings
+    const auctionListings = await Listing.find({
+      isAuction: true
+    }).populate('owner').populate('highestBidder', 'username');
+    
+    // Categorize by status
+    const auctions = auctionListings.map(listing => {
+      const timeLeft = listing.auctionEndTime - currentTime;
+      let status = 'ended';
+      
+      if (timeLeft > 0) {
+        if (timeLeft <= 3600000) { // 1 hour
+          status = 'ending-soon';
+        } else {
+          status = 'live';
+        }
+      }
+      
+      return {
+        ...listing.toObject(),
+        status: status,
+        timeLeft: timeLeft
+      };
+    });
+    
+    res.render("auction/live.ejs", { 
+      auctions: auctions,
+      currentUser: req.user 
+    });
+    
+  } catch (error) {
+    console.error("Error fetching auctions:", error);
+    req.flash("error", "Could not load auctions");
+    res.redirect("/listings");
   }
+};
 
-  listing.highestBid = bidAmount;
-  listing.highestBidder = req.user._id;
-  await listing.save();
-
-  req.flash("success", "Bid placed successfully!");
-  res.redirect("/live-auctions");
+module.exports.getAuctionData = async (req, res) => {
+  try {
+    const currentTime = new Date();
+    
+    const auctions = await Listing.find({
+      isAuction: true
+    }).select('title description location category image price currentBid auctionStartTime auctionEndTime totalBids');
+    
+    const auctionData = auctions.map(auction => {
+      const timeLeft = auction.auctionEndTime - currentTime;
+      let status = 'ended';
+      
+      if (timeLeft > 0) {
+        status = timeLeft <= 3600000 ? 'ending-soon' : 'live';
+      }
+      
+      return {
+        id: auction._id,
+        title: auction.title,
+        description: auction.description,
+        location: auction.location,
+        category: auction.category,
+        image: auction.image?.url || '/images/default-property.jpg',
+        currentBid: auction.currentBid || auction.price,
+        startingBid: auction.price,
+        endTime: auction.auctionEndTime,
+        totalBids: auction.totalBids || 0,
+        status: status
+      };
+    });
+    
+    res.json(auctionData);
+  } catch (error) {
+    res.status(500).json({ error: "Could not fetch auction data" });
+  }
 };

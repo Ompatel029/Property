@@ -26,12 +26,12 @@ const listingSchema = new Schema({
       type: {
          type: String,
          enum: ['Point'],
-         default: 'Point' 
-      },
+         default: 'Point'
+       },
       coordinates: {
          type: [Number],
-         default: [0, 0] 
-      }
+         default: [0, 0]
+       }
    },
    category: {
       type: String,
@@ -39,15 +39,28 @@ const listingSchema = new Schema({
          "trending", "rooms", "iconic-cities", "mountain", "castles",
          "pools", "camping", "farms", "arctic", "new-listings",
          "apartments", "villas", "luxury", "beachfront", "garden-homes",
-         "penthouses", "family-friendly", "commercial", "plots", "live-auction"
+         "penthouses", "family-friendly", "commercial", "plots"
       ],
       default: "new-listings"
    },
+   
+   // ✨ AUCTION FIELDS
    isAuction: { type: Boolean, default: false },
+   auctionDays: { type: Number },
    auctionStartTime: { type: Date, default: null },
    auctionEndTime: { type: Date, default: null },
-   highestBid: { type: Number, default: 0 },
-   highestBidder: { type: Schema.Types.ObjectId, ref: "User", default: null }
+   
+   // ✨ BIDDING FIELDS  
+   currentBid: { type: Number, default: 0 },
+   totalBids: { type: Number, default: 0 },
+   highestBidder: { type: Schema.Types.ObjectId, ref: "User", default: null },
+   
+   // ✨ BID HISTORY
+   bidHistory: [{
+      bidder: { type: Schema.Types.ObjectId, ref: "User" },
+      amount: { type: Number },
+      timestamp: { type: Date, default: Date.now }
+   }]
 });
 
 listingSchema.post("findOneAndDelete", async (listing) => {
