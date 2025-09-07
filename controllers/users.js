@@ -13,7 +13,7 @@ try{
          if(err){
               return next(err);
          }
-         req.flash("success","Welcome to Enjoyway!");
+         req.flash("success","Welcome to PropertyConnectHub!");
          res.redirect("/listings");
     });
 }catch(e){
